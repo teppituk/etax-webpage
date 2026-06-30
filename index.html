@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title data-en="eTax — End-to-end Electronic Tax Invoice System | GEC">eTax — ระบบใบกำกับภาษีอิเล็กทรอนิกส์ครบวงจร | GEC</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ===== Theme tokens (จากธีมเดิมของ ui-service) ===== */
+  :root {
+    --indigo-900: #1A237E;
+    --indigo-800: #223358;
+    --indigo-700: #283593;
+    --indigo-600: #3949ab;
+    --indigo-400: #5c6bc0;
+    --ink:        #233140;
+    --slate-700:  #334155;
+    --slate-500:  #64748b;
+    --slate-400:  #94a3b8;
+    --slate-200:  #e2e8f0;
+    --slate-100:  #f1f5f9;
+    --bg:         #f4f6fb;
+    --card:       #ffffff;
+    --success:    #1DAA3F;
+    --warn:       #D49236;
+    --danger:     #E43927;
+    --sky:        #47B4E2;
+    --radius:     16px;
+    --shadow-sm:  0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+    --shadow-md:  0 8px 24px rgba(26,35,126,.10);
+    --shadow-lg:  0 24px 48px -12px rgba(26,35,126,.22);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'IBM Plex Sans Thai', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--slate-700);
+    background: var(--bg);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  html[lang="en"] body { font-family: 'Inter', 'IBM Plex Sans Thai', system-ui, sans-serif; }
+  a { color: var(--indigo-700); text-decoration: none; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== Top nav ===== */
+  header.nav {
+    position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(90deg, rgba(200,229,244,.85), rgba(182,216,236,.85));
+    backdrop-filter: saturate(150%) blur(14px);
+    -webkit-backdrop-filter: saturate(150%) blur(14px);
+    border-bottom: 1px solid rgba(40,53,147,.10);
+    box-shadow: 0 2px 18px rgba(40,53,147,.10);
+    transition: background .3s, box-shadow .3s;
+  }
+  header.nav::after {
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(40,53,147,.30), transparent); opacity:.7;
+  }
+  header.nav.scrolled {
+    background: linear-gradient(90deg, rgba(198,227,244,.97), rgba(173,211,233,.97));
+    box-shadow: 0 8px 28px rgba(40,53,147,.18);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 16px; height: 72px; transition: height .28s ease; }
+  header.nav.scrolled .nav-inner { height: 60px; }
+
+  .brand { display: flex; align-items: center; gap: 13px; color: var(--indigo-900); font-weight: 700; }
+  .brand .logo-badge {
+    position: relative; height: 46px; padding: 0 14px; border-radius: 14px; background: #fff;
+    display: grid; place-items: center; transition: transform .28s, height .28s, padding .28s;
+  }
+  .brand .logo-badge::before {
+    content:""; position:absolute; inset:-2px; border-radius:16px; z-index:-1;
+    background: linear-gradient(135deg,#6c7cff,#9fb4ff,#ffffff); filter: blur(6px); opacity:.5; transition: opacity .3s;
+  }
+  .brand:hover .logo-badge { transform: scale(1.04); }
+  .brand:hover .logo-badge::before { opacity:.85; }
+  .brand .logo-badge img { height: 30px; width: auto; display: block; }
+  header.nav.scrolled .brand .logo-badge { height: 38px; padding: 0 12px; }
+  header.nav.scrolled .brand .logo-badge img { height: 25px; }
+  .brand b { font-size: 17.5px; letter-spacing: .2px; }
+  .brand small { display: block; font-weight: 400; font-size: 11px; color: #5b6b8c; letter-spacing: 1.6px; white-space: nowrap; }
+
+  .nav-links { margin-left: auto; display: flex; gap: 3px; align-items: center; }
+  .nav-links a.nlink {
+    position: relative; color: #41557a; font-size: 14.5px; font-weight: 500;
+    padding: 9px 16px; border-radius: 11px; transition: color .18s, background .18s;
+  }
+  .nav-links a.nlink::after {
+    content:""; position:absolute; left:50%; bottom:7px; width:0; height:2px; border-radius:2px;
+    background: linear-gradient(90deg,var(--indigo-600),var(--indigo-400)); transform: translateX(-50%); transition: width .24s ease;
+  }
+  .nav-links a.nlink:hover { color:var(--indigo-900); background: rgba(40,53,147,.07); }
+  .nav-links a.nlink:hover::after { width: 22px; }
+
+  .nav-actions { display:flex; align-items:center; gap:10px; margin-left:12px; }
+  .nav-links a.login {
+    display:inline-flex; align-items:center; gap:8px; color:var(--indigo-700); font-weight:600; font-size:14px;
+    padding:9px 16px; border-radius:11px; border:1px solid rgba(40,53,147,.32); transition:.2s;
+  }
+  .nav-links a.login svg { width:16px; height:16px; }
+  .nav-links a.login:hover { background: rgba(40,53,147,.08); border-color:rgba(40,53,147,.55); transform:translateY(-1px); }
+
+  .nav-links a.cta {
+    position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:8px;
+    background: linear-gradient(135deg,var(--indigo-700),var(--indigo-600)); color:#fff;
+    font-weight:700; font-size:14px; padding:10px 20px; border-radius:11px;
+    box-shadow:0 6px 18px rgba(40,53,147,.32); transition:.2s;
+  }
+  .nav-links a.cta svg { width:16px; height:16px; transition: transform .22s; }
+  .nav-links a.cta::before {
+    content:""; position:absolute; top:0; left:-120%; width:55%; height:100%;
+    background: linear-gradient(110deg, transparent, rgba(124,140,255,.5), transparent);
+    transform: skewX(-18deg); animation: cta-shine 4.8s ease-in-out infinite;
+  }
+  @keyframes cta-shine { 0%,55% { left:-120%; } 78%,100% { left:150%; } }
+  .nav-links a.cta:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(40,53,147,.45); }
+  .nav-links a.cta:hover svg { transform: translateX(3px); }
+
+  /* hamburger (mobile) */
+  .nav-burger { display:none; width:42px; height:42px; flex:none; border:1px solid rgba(40,53,147,.3);
+    border-radius:11px; background:rgba(255,255,255,.5); cursor:pointer; padding:0; }
+  .nav-burger span, .nav-burger span::before, .nav-burger span::after {
+    display:block; width:18px; height:2px; background:var(--indigo-800); border-radius:2px; transition:.25s; }
+  .nav-burger span { position:relative; margin:0 auto; }
+  .nav-burger span::before, .nav-burger span::after { content:""; position:absolute; left:0; }
+  .nav-burger span::before { top:-6px; } .nav-burger span::after { top:6px; }
+  .nav-burger.open span { background:transparent; }
+  .nav-burger.open span::before { top:0; transform:rotate(45deg); }
+  .nav-burger.open span::after { top:0; transform:rotate(-45deg); }
+
+  /* mobile menu panel */
+  .mobile-menu { display:none; }
+  @media (max-width: 940px){
+    .nav-links a.nlink, .nav-links a.login, .nav-links a.cta { display:none; }
+    .nav-burger { display:block; }
+    .mobile-menu {
+      display:block; position:sticky; top:60px; z-index:99; overflow:hidden; max-height:0;
+      background: linear-gradient(180deg, rgba(200,229,244,.98), rgba(182,216,236,.98));
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(40,53,147,.12); transition: max-height .34s ease;
+    }
+    .mobile-menu.open { max-height:420px; box-shadow:0 14px 30px rgba(40,53,147,.18); }
+    .mobile-menu a { display:flex; align-items:center; gap:10px; color:#334155; font-size:15.5px; font-weight:500;
+      padding:15px 26px; border-bottom:1px solid rgba(40,53,147,.08); transition:.16s; }
+    .mobile-menu a:last-child { border-bottom:0; }
+    .mobile-menu a:hover { background: rgba(40,53,147,.07); color:var(--indigo-900); padding-left:32px; }
+    .mobile-menu a.m-cta { color:var(--indigo-700); font-weight:700; }
+    .mobile-menu a.m-cta svg, .mobile-menu a.m-login svg { width:17px; height:17px; opacity:.85; }
+  }
+  /* single language toggle (flag + code) */
+  .lang-toggle {
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background: rgba(255,255,255,.65); border:1px solid rgba(40,53,147,.22); border-radius:11px;
+    padding:7px 12px 7px 9px; color:var(--indigo-700); font-family:inherit; font-weight:600; font-size:14px;
+    letter-spacing:.4px; transition:.18s;
+  }
+  .lang-toggle:hover { background: rgba(255,255,255,.92); border-color:rgba(40,53,147,.4); transform:translateY(-1px); }
+  .lang-toggle .flag {
+    width:24px; height:16px; border-radius:3px; overflow:hidden; display:block; flex:none;
+    box-shadow:0 0 0 1px rgba(40,53,147,.15);
+  }
+  .lang-toggle .flag svg { display:block; width:100%; height:100%; }
+  .lang-toggle .chev { width:14px; height:14px; opacity:.65; }
+
+  /* nav responsive tightening (placed last so it wins source-order) */
+  @media (max-width: 520px){ .brand small { display:none; } }
+  @media (max-width: 480px){
+    .nav-inner { gap:10px; }
+    .nav-actions { margin-left:6px; gap:8px; }
+    .lang-toggle { padding:6px 10px 6px 8px; font-size:13px; }
+    .lang-toggle .flag { width:21px; height:14px; }
+    .lang-toggle .chev { display:none; }
+  }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative; overflow: hidden;
+    background: radial-gradient(1200px 500px at 80% -10%, rgba(255,255,255,.55), transparent 60%),
+                linear-gradient(140deg, #c8e5f4 0%, #b6d8ec 55%, #a8cfe7 100%);
+    color: var(--slate-700);
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(40,53,147,.10) 1px, transparent 0);
+    background-size: 22px 22px; opacity:.5; pointer-events:none;
+  }
+  .hero-inner { position: relative; padding: 78px 0 92px; max-width: 760px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.7); border: 1px solid rgba(40,53,147,.18);
+    padding: 6px 14px; border-radius: 999px; font-size: 13px; color: var(--indigo-700); backdrop-filter: blur(4px);
+  }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px rgba(22,163,74,.2); }
+  .hero h1 { font-size: clamp(31px, 5vw, 52px); line-height: 1.15; margin: 20px 0 16px; font-weight: 700; letter-spacing: -.5px; color: var(--indigo-900); }
+  .hero h1 .grad { background: linear-gradient(90deg,var(--indigo-600),var(--indigo-400)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: 18.5px; color: #41557a; }
+  .hero-actions { margin-top: 32px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+    padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 15.5px;
+    border: 1px solid transparent; transition: .18s; font-family: inherit;
+  }
+  .btn-primary { background: #fff; color: var(--indigo-700); box-shadow: var(--shadow-md); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .btn-ghost { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.35); }
+  .btn-ghost:hover { background: rgba(255,255,255,.18); }
+  .btn svg { width: 18px; height: 18px; }
+  /* hero buttons on the light background */
+  .hero .btn-primary { background: linear-gradient(135deg, var(--indigo-700), var(--indigo-600)); color:#fff;
+    box-shadow: 0 8px 22px rgba(40,53,147,.30); }
+  .hero .btn-primary:hover { background: linear-gradient(135deg, var(--indigo-800), var(--indigo-700)); box-shadow: 0 12px 28px rgba(40,53,147,.40); }
+  .hero .btn-ghost { background: rgba(255,255,255,.75); color: var(--indigo-700); border-color: rgba(40,53,147,.25); }
+  .hero .btn-ghost:hover { background:#fff; border-color: rgba(40,53,147,.45); }
+  .hero-trust { margin-top: 30px; display: flex; gap: 22px; flex-wrap: wrap; color: #41557a; font-size: 14px; }
+  .hero-trust span.tx { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-trust svg { width: 17px; height: 17px; color: #16a34a; }
+
+  /* ===== Stats strip ===== */
+  .stats { position: relative; margin-top: -46px; z-index: 5; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 18px;
+    background: var(--card); border-radius: var(--radius); padding: 28px;
+    box-shadow: var(--shadow-lg); border: 1px solid var(--slate-200);
+  }
+  .stat { text-align: center; }
+  .stat .num { font-size: 30px; font-weight: 700; color: var(--indigo-700); line-height: 1.1; }
+  .stat .lbl { font-size: 13.5px; color: var(--slate-500); margin-top: 6px; }
+  .stat + .stat { border-left: 1px solid var(--slate-200); }
+  @media (max-width: 760px){ .stats-grid { grid-template-columns: repeat(2,1fr); } .stat + .stat { border-left: 0; } }
+
+  /* ===== Section ===== */
+  section.block { padding: 68px 0; }
+  .sec-head { text-align: center; max-width: 720px; margin: 0 auto 46px; }
+  .sec-head .kicker { color: var(--indigo-600); font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+  .sec-head h2 { font-size: clamp(26px,3.5vw,37px); color: var(--indigo-900); margin: 10px 0 12px; font-weight: 700; }
+  .sec-head p { color: var(--slate-500); font-size: 16.5px; margin: 0; }
+
+  /* ===== What is (intro split) ===== */
+  .intro { display: grid; grid-template-columns: 1fr 1fr; gap: 46px; align-items: center; }
+  @media (max-width: 880px){ .intro { grid-template-columns: 1fr; gap: 30px; } }
+  .intro h2 { font-size: clamp(25px,3vw,33px); color: var(--indigo-900); margin: 8px 0 16px; line-height: 1.25; }
+  .intro .kicker { color: var(--indigo-600); font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+  .intro p { font-size: 16px; color: var(--slate-500); }
+  .intro ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  .intro li { display: flex; gap: 12px; padding: 9px 0; font-size: 15.5px; color: var(--slate-700); }
+  .intro li svg { width: 22px; height: 22px; flex: none; color: var(--success); margin-top: 1px; }
+  .intro-card {
+    background: linear-gradient(160deg,#fff, #eef1fb); border: 1px solid var(--slate-200);
+    border-radius: 20px; padding: 30px; box-shadow: var(--shadow-md);
+  }
+  .doc-preview { background:#fff; border:1px solid var(--slate-200); border-radius:14px; padding:22px; box-shadow: var(--shadow-sm); }
+  .doc-preview .dp-head { display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--indigo-700); padding-bottom:12px; margin-bottom:14px; }
+  .doc-preview .dp-head b { color: var(--indigo-900); font-size:15px; }
+  .doc-preview .stamp { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--success); border:1.5px solid var(--success); padding:4px 10px; border-radius:8px; font-weight:600; }
+  .doc-preview .stamp svg { width:14px; height:14px; }
+  .doc-preview .row { height:9px; background:var(--slate-100); border-radius:5px; margin:9px 0; }
+  .doc-preview .row.s { width:55%; } .doc-preview .row.m { width:80%; }
+  .doc-preview .dp-foot { display:flex; align-items:center; gap:10px; margin-top:16px; padding-top:14px; border-top:1px dashed var(--slate-200); font-size:12.5px; color:var(--slate-500); }
+  .doc-preview .qr { width:46px; height:46px; border-radius:8px; background:
+      repeating-linear-gradient(45deg,var(--indigo-900) 0 4px,#fff 4px 8px); opacity:.85; flex:none; }
+
+  /* ===== Feature cards ===== */
+  .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+  @media (max-width: 900px){ .cards { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 600px){ .cards { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--slate-200); border-radius: 16px;
+    padding: 26px 24px; box-shadow: var(--shadow-sm); transition: .2s;
+  }
+  .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: #c7d0ec; }
+  .card-ico {
+    width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 16px;
+    background: var(--accent-bg, #eef1ff); color: var(--accent, var(--indigo-600));
+  }
+  .card-ico svg { width: 26px; height: 26px; }
+  .card h4 { margin: 0 0 8px; font-size: 17.5px; color: var(--indigo-900); font-weight: 600; }
+  .card p { font-size: 14.5px; color: var(--slate-500); margin: 0; }
+
+  /* ===== Journey / steps ===== */
+  .journey { background: #fff; }
+  .steps-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; counter-reset: js; }
+  @media (max-width: 960px){ .steps-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 520px){ .steps-grid { grid-template-columns: 1fr; } }
+  .jstep { position: relative; background: var(--card); border: 1px solid var(--slate-200); border-radius: 16px; padding: 24px 20px; box-shadow: var(--shadow-sm); }
+  .jstep .jn {
+    counter-increment: js; width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--indigo-700), var(--indigo-400)); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 17px; margin-bottom: 14px;
+  }
+  .jstep .jn::before { content: counter(js); }
+  .jstep h5 { margin: 0 0 6px; font-size: 15.5px; color: var(--indigo-900); }
+  .jstep p { margin: 0; font-size: 13.5px; color: var(--slate-500); }
+
+  /* ===== Benefits ===== */
+  .benefits { background: linear-gradient(180deg,#fff,#eef1f9); }
+  .ben-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 18px; }
+  @media (max-width: 760px){ .ben-grid { grid-template-columns: 1fr; } }
+  .ben {
+    display: flex; gap: 16px; background: var(--card); border: 1px solid var(--slate-200);
+    border-radius: 14px; padding: 22px; box-shadow: var(--shadow-sm);
+  }
+  .ben .b-ico { width: 46px; height: 46px; flex: none; border-radius: 12px; display: grid; place-items: center; background:#eef7ee; color: var(--success); }
+  .ben .b-ico svg { width: 24px; height: 24px; }
+  .ben h5 { margin: 0 0 5px; font-size: 16px; color: var(--indigo-900); }
+  .ben p { margin: 0; font-size: 14px; color: var(--slate-500); }
+
+  /* ===== Audience ===== */
+  .aud-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+  @media (max-width: 820px){ .aud-grid { grid-template-columns: repeat(2,1fr); } }
+  .aud { text-align: center; background: var(--card); border: 1px solid var(--slate-200); border-radius: 16px; padding: 28px 18px; box-shadow: var(--shadow-sm); transition:.2s; }
+  .aud:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+  .aud .a-ico { width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 14px; display: grid; place-items: center; background:#eef1ff; color: var(--indigo-600); }
+  .aud .a-ico svg { width: 28px; height: 28px; }
+  .aud h5 { margin: 0 0 6px; font-size: 16px; color: var(--indigo-900); }
+  .aud p { margin: 0; font-size: 13.5px; color: var(--slate-500); }
+
+  /* ===== CTA ===== */
+  .cta-band {
+    background: radial-gradient(900px 400px at 80% -20%, rgba(255,255,255,.55), transparent 60%),
+                linear-gradient(135deg, #c8e5f4, #a8cfe7);
+    color:var(--slate-700); border-radius: 24px; padding: 54px 40px; text-align:center; box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+  }
+  .cta-band h2 { font-size: clamp(25px,3.5vw,36px); margin: 0 0 12px; color: var(--indigo-900); }
+  .cta-band p { font-size: 17px; color: #41557a; margin: 0 auto 28px; max-width: 560px; }
+  .cta-band .btn-primary { background: linear-gradient(135deg,var(--indigo-700),var(--indigo-600)); color:#fff; }
+  .cta-band .btn-ghost { background: rgba(255,255,255,.75); color: var(--indigo-700); border-color: rgba(40,53,147,.28); }
+  .cta-band .btn-ghost:hover { background:#fff; }
+
+  /* ===== Trust strip ===== */
+  .trust-strip { position: relative; margin-top: 36px; }
+  .trust-grid { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; align-items:stretch; }
+  .trust-item { display:flex; align-items:center; gap:13px; background:var(--card); border:1px solid var(--slate-200); border-radius:14px; padding:16px 22px; box-shadow:var(--shadow-sm); }
+  .trust-item .ti-ico { width:44px; height:44px; flex:none; border-radius:11px; display:grid; place-items:center; background:#eef1ff; color:var(--indigo-700); }
+  .trust-item .ti-ico svg { width:23px; height:23px; }
+  .trust-item b { display:block; color:var(--indigo-900); font-size:14.5px; }
+  .trust-item span { font-size:12.5px; color:var(--slate-500); }
+
+  /* ===== Supported documents ===== */
+  .docs-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; max-width:880px; margin:0 auto; }
+  @media (max-width:640px){ .docs-grid { grid-template-columns:1fr; } }
+  .doc-item { display:flex; align-items:center; gap:13px; background:var(--card); border:1px solid var(--slate-200); border-radius:12px; padding:14px 18px; box-shadow:var(--shadow-sm); transition:.18s; }
+  .doc-item:hover { border-color:#c7d0ec; box-shadow:var(--shadow-sm); transform:translateX(3px); }
+  .doc-item .dnum { width:30px; height:30px; flex:none; border-radius:9px; background:linear-gradient(135deg,var(--indigo-700),var(--indigo-400)); color:#fff; display:grid; place-items:center; font-size:13px; font-weight:700; }
+  .doc-item .dname b { color:var(--indigo-900); font-size:14.5px; font-weight:600; }
+  .doc-item .dname span { color:var(--slate-400); font-size:12.5px; margin-left:6px; }
+
+  /* ===== Solutions ===== */
+  .sol-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch; }
+  @media (max-width:900px){ .sol-grid { grid-template-columns:1fr; max-width:480px; margin:0 auto; } }
+  .sol { display:flex; flex-direction:column; background:var(--card); border:1px solid var(--slate-200); border-radius:18px; padding:28px 24px; box-shadow:var(--shadow-sm); transition:.2s; position:relative; }
+  .sol:hover { transform:translateY(-5px); box-shadow:var(--shadow-md); }
+  .sol.feat { border:2px solid var(--indigo-600); box-shadow:var(--shadow-md); }
+  .sol .ribbon { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--indigo-700),var(--indigo-500,#3949ab)); color:#fff; font-size:11.5px; font-weight:600; padding:5px 16px; border-radius:999px; letter-spacing:.5px; white-space:nowrap; }
+  .sol .s-ico { width:54px; height:54px; border-radius:15px; display:grid; place-items:center; background:#eef1ff; color:var(--indigo-700); margin-bottom:16px; }
+  .sol .s-ico svg { width:27px; height:27px; }
+  .sol .s-name { font-size:13px; color:var(--indigo-600); font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+  .sol h4 { margin:4px 0 12px; font-size:20px; color:var(--indigo-900); }
+  .sol > p { font-size:14px; color:var(--slate-500); margin:0 0 18px; }
+  .sol .s-for { list-style:none; padding:16px 0 0; margin:auto 0 0; border-top:1px dashed var(--slate-200); }
+  .sol .s-for li { display:flex; gap:9px; font-size:13.5px; color:var(--slate-700); padding:5px 0; }
+  .sol .s-for li svg { width:18px; height:18px; flex:none; color:var(--success); margin-top:1px; }
+  .sol .s-go { margin-top:16px; display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--indigo-700); background:#eef1ff; padding:7px 13px; border-radius:9px; align-self:flex-start; }
+
+  /* ===== Pricing ===== */
+  .pricing { background:linear-gradient(180deg,#fff,#eef1f9); }
+  .price-cols { display:grid; grid-template-columns:1fr 1.25fr; gap:26px; align-items:start; }
+  @media (max-width:920px){ .price-cols { grid-template-columns:1fr; } }
+  .price-panel { background:var(--card); border:1px solid var(--slate-200); border-radius:18px; padding:26px; box-shadow:var(--shadow-sm); }
+  .price-panel h4 { margin:0 0 4px; font-size:17px; color:var(--indigo-900); display:flex; align-items:center; gap:9px; }
+  .price-panel h4 svg { width:20px; height:20px; color:var(--indigo-600); }
+  .price-panel .ph-sub { font-size:13.5px; color:#475569; line-height:1.6; margin:0 0 16px; }
+  .fee-row { display:flex; justify-content:space-between; gap:14px; align-items:baseline; padding:13px 0; border-bottom:1px dashed var(--slate-200); }
+  .fee-row:last-child { border-bottom:0; }
+  .fee-row .fr-name b { color:var(--slate-700); font-size:14.5px; font-weight:600; display:block; }
+  .fee-row .fr-name span { color:var(--slate-400); font-size:12px; }
+  .fee-row .fr-price { text-align:right; white-space:nowrap; }
+  .fee-row .fr-price b { color:var(--indigo-700); font-size:16px; }
+  .fee-row .fr-price span { display:block; color:var(--slate-400); font-size:11.5px; }
+  .free-tag { color:var(--success); font-size:11.5px; font-weight:600; }
+
+  .tier-table { width:100%; border-collapse:collapse; }
+  .tier-table th { text-align:left; font-size:13px; color:#334155; font-weight:700; letter-spacing:.3px; padding:0 14px 12px; }
+  .tier-table th:last-child { text-align:right; }
+  .tier-table td { padding:13px 14px; border-top:1px solid var(--slate-200); font-size:14.5px; color:var(--slate-700); }
+  .tier-table td:last-child { text-align:right; font-weight:700; color:var(--indigo-700); font-size:15.5px; white-space:nowrap; }
+  .tier-table tr.best td { background:linear-gradient(90deg,rgba(29,170,63,.08),transparent); }
+  .tier-table .best-badge { display:inline-block; background:var(--success); color:#fff; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:8px; vertical-align:middle; }
+  .tier-note { margin-top:16px; font-size:12.5px; color:var(--slate-500); background:#eef1ff; border-radius:10px; padding:12px 16px; line-height:1.7; }
+
+  /* ===== Savings ===== */
+  .savings { background:#fff; }
+  .save-wrap { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:30px; align-items:center; }
+  @media (max-width:880px){ .save-wrap { grid-template-columns:minmax(0,1fr); } }
+  .cmp-table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--slate-200); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-sm); }
+  .cmp-table th, .cmp-table td { padding:14px 18px; font-size:14px; text-align:left; }
+  .cmp-table thead th { background:var(--slate-100); color:var(--indigo-900); font-weight:700; font-size:13.5px; }
+  .cmp-table thead th:nth-child(2), .cmp-table thead th:nth-child(3) { text-align:center; }
+  .cmp-table tbody td { border-top:1px solid var(--slate-200); color:var(--slate-700); }
+  .cmp-table tbody td:nth-child(2), .cmp-table tbody td:nth-child(3) { text-align:center; font-weight:600; }
+  .cmp-table .col-paper { color:var(--danger); }
+  .cmp-table .col-etax { color:var(--success); }
+  .cmp-table .gec-col { background:rgba(40,53,147,.04); }
+  .cmp-table tbody td.gec-col { color:var(--indigo-700); font-weight:700; }
+  .cmp-table .ck { color:var(--success); font-weight:700; }
+  .save-highlight { background:linear-gradient(140deg,#c8e5f4,#a8cfe7); color:var(--slate-700); border-radius:20px; padding:32px; box-shadow:var(--shadow-md); }
+  .save-highlight .big { font-size:54px; font-weight:700; line-height:1; background:linear-gradient(90deg,var(--indigo-700),var(--indigo-500,#3949ab)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .save-highlight .big-lbl { font-size:15px; color:#41557a; margin:6px 0 22px; }
+  .save-highlight .sh-row { display:flex; justify-content:space-between; padding:11px 0; border-top:1px solid rgba(40,53,147,.18); font-size:14.5px; color:#41557a; }
+  .save-highlight .sh-row b { color:var(--indigo-900); }
+  .save-highlight .sh-row .old { color:#c0392b; text-decoration:line-through; opacity:.7; margin-right:8px; font-size:13px; }
+
+  /* ===== Price calculator ===== */
+  .calc { margin-top:30px; background:var(--card); border:1px solid var(--slate-200); border-radius:20px; box-shadow:var(--shadow-md); overflow:hidden; }
+  .calc-head { display:flex; align-items:center; gap:14px; padding:22px 28px; border-bottom:1px solid var(--slate-200); }
+  .calc-head .calc-ico { width:48px; height:48px; flex:none; border-radius:13px; display:grid; place-items:center; background:#eef1ff; color:var(--indigo-700); }
+  .calc-head .calc-ico svg { width:25px; height:25px; }
+  .calc-head h3 { margin:0; font-size:19px; color:var(--indigo-900); }
+  .calc-head p { margin:2px 0 0; font-size:13.5px; color:var(--slate-500); }
+  .calc-body { display:grid; grid-template-columns:1fr 1fr; }
+  @media (max-width:760px){ .calc-body { grid-template-columns:1fr; } }
+  .calc-input { padding:28px; }
+  .calc-input label { display:block; font-size:13.5px; font-weight:600; color:var(--slate-700); margin-bottom:10px; }
+  .calc-field { display:flex; align-items:center; border:2px solid var(--slate-200); border-radius:12px; overflow:hidden; transition:.16s; }
+  .calc-field:focus-within { border-color:var(--indigo-600); box-shadow:0 0 0 3px rgba(57,73,171,.12); }
+  .calc-field input { flex:1; min-width:0; border:0; outline:0; background:transparent; font-family:inherit; font-size:22px; font-weight:700; color:var(--indigo-900); padding:12px 16px; }
+  .calc-field .unit { padding:0 16px; color:var(--slate-400); font-size:14px; white-space:nowrap; }
+  .calc-input input[type=range] { width:100%; margin:20px 0 16px; accent-color:var(--indigo-700); cursor:pointer; }
+  .calc-presets { display:flex; gap:8px; flex-wrap:wrap; }
+  .calc-presets button { border:1px solid var(--slate-200); background:var(--slate-100); color:var(--slate-700); font-family:inherit; font-size:13px; font-weight:600; padding:7px 13px; border-radius:9px; cursor:pointer; transition:.15s; }
+  .calc-presets button:hover { border-color:var(--indigo-400); color:var(--indigo-700); background:#eef1ff; }
+  .calc-result { background:linear-gradient(155deg,#c8e5f4,#a8cfe7); color:var(--slate-700); padding:28px; display:flex; flex-direction:column; justify-content:center; }
+  .cr-tier { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding-bottom:14px; margin-bottom:6px; border-bottom:1px solid rgba(40,53,147,.18); }
+  .cr-tier span { color:#41557a; font-size:14px; }
+  .cr-tier b { font-size:20px; color:var(--indigo-900); white-space:nowrap; }
+  .cr-line { display:flex; justify-content:space-between; gap:12px; padding:7px 0; font-size:14.5px; color:#41557a; }
+  .cr-line b { color:var(--indigo-900); font-weight:600; white-space:nowrap; }
+  .cr-total { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:12px; padding-top:14px; border-top:1px solid rgba(40,53,147,.18); }
+  .cr-total span { font-size:15px; color:var(--indigo-900); font-weight:600; }
+  .cr-total b { font-size:28px; white-space:nowrap; background:linear-gradient(90deg,var(--indigo-700),var(--indigo-500,#3949ab)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .cr-note { font-size:12px; color:#5b6b8c; margin:14px 0 0; min-height:16px; }
+  .calc-special { text-align:center; display:none; }
+  .calc-special h4 { margin:0 0 8px; font-size:21px; color:var(--indigo-900); }
+  .calc-special p { color:#41557a; font-size:14px; margin:0 0 18px; }
+  .calc-special a { display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--indigo-700),var(--indigo-600)); color:#fff; font-weight:600; padding:11px 20px; border-radius:11px; font-size:14.5px; }
+  .calc-special a svg { width:18px; height:18px; }
+
+  /* ===== Customers / trusted by ===== */
+  .customers { background: linear-gradient(180deg,#fff,#f4f6fb); overflow:hidden; }
+  .cust-stats { display:flex; justify-content:center; gap:38px; flex-wrap:wrap; margin:-14px 0 6px; }
+  .cust-stats .cs { text-align:center; }
+  .cust-stats .cs b { display:block; font-size:26px; font-weight:700; color:var(--indigo-700); line-height:1; }
+  .cust-stats .cs span { font-size:13px; color:var(--slate-500); }
+  .cust-marquee { position:relative; padding:10px 0;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent); }
+  .cust-track { display:flex; gap:22px; width:max-content; animation: cust-scroll 90s linear infinite; }
+  .cust-track.rev { animation-duration:104s; animation-direction:reverse; }
+  .cust-marquee:hover .cust-track { animation-play-state:paused; }
+  @keyframes cust-scroll { from { transform:translateX(0);} to { transform:translateX(-50%);} }
+  .cust-card { flex:none; width:194px; background:#fff; border:1px solid var(--slate-200);
+    border-radius:16px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; align-items:center;
+    padding:18px 18px 15px; transition: transform .28s, box-shadow .28s, border-color .28s; }
+  .cust-card .logo-wrap { height:72px; width:100%; display:grid; place-items:center; }
+  .cust-card img { max-width:150px; max-height:70px; object-fit:contain; transition: transform .28s; }
+  .cust-card .cust-name { margin-top:13px; padding-top:12px; width:100%; text-align:center;
+    border-top:1px solid var(--slate-200); font-size:12.5px; font-weight:500; color:var(--slate-600); line-height:1.45; }
+  .cust-card:hover { transform:translateY(-7px); box-shadow:var(--shadow-md); border-color:#c7d0ec; }
+  .cust-card:hover .cust-name { color:var(--indigo-700); border-color:#c7d0ec; }
+  .cust-card:hover img { transform:scale(1.06); }
+  @media (prefers-reduced-motion: reduce){ .cust-track { animation:none; } }
+
+  /* ===== Footer ===== */
+  footer { background: linear-gradient(180deg, #c8e5f4, #a8cfe7); color: #41557a; padding: 44px 0 26px; margin-top: 64px; }
+  footer .f-top { display:flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  footer .brand b { color: var(--indigo-900); }
+  footer .brand small { color: #5b6b8c; }
+  footer .f-links { display:flex; gap: 30px; flex-wrap: wrap; }
+  footer .f-col h6 { color:var(--indigo-900); margin:0 0 10px; font-size: 13px; letter-spacing:1px; text-transform: uppercase; }
+  footer .f-col a, footer .f-col span { display:block; color:#41557a; font-size: 13.5px; padding: 3px 0; }
+  footer .f-col a:hover { color:var(--indigo-700); }
+  footer .f-bottom { border-top: 1px solid rgba(40,53,147,.18); margin-top: 30px; padding-top: 18px; font-size: 13px; color: #5b6b8c; text-align:center; }
+
+  /* ============================================================
+     RESPONSIVE POLISH — MacBook / iPad / iPhone
+     ============================================================ */
+  /* overflow-x: clip prevents horizontal scroll WITHOUT breaking position:sticky
+     (overflow:hidden would turn body into a scroll container and unstick the nav) */
+  html, body { max-width: 100%; overflow-x: clip; }
+  img { max-width: 100%; }
+  /* tables never break the layout */
+  .table-scroll { width: 100%; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 16px; }
+  .table-scroll .cmp-table { min-width: 420px; }
+  .save-wrap > * { min-width: 0; }   /* let grid items shrink so nothing overflows */
+
+  /* ---- iPad landscape & 13" MacBook (≤1180) ---- */
+  @media (max-width: 1180px){ .wrap { padding: 0 26px; } }
+
+  /* ---- iPad portrait (≤900) ---- */
+  @media (max-width: 900px){
+    section.block { padding: 56px 0; }
+    .hero-inner { padding: 62px 0 72px; }
+    .sec-head { margin-bottom: 38px; }
+    .stats { margin-top: -40px; }
+  }
+
+  /* ---- large phones / small tablets (≤600) ---- */
+  @media (max-width: 600px){
+    .wrap { padding: 0 18px; }
+    section.block { padding: 44px 0; }
+    .hero-inner { padding: 46px 0 54px; }
+    .hero h1 { font-size: 30px; }
+    .hero p.lead { font-size: 16px; }
+    .hero-actions .btn { flex: 1 1 auto; justify-content: center; }
+    .hero-trust { gap: 12px 18px; font-size: 13px; }
+    .sec-head { margin-bottom: 30px; }
+    .sec-head h2 { font-size: 25px; }
+    .sec-head p { font-size: 15px; }
+    .stats { margin-top: -34px; }
+    .stats-grid { padding: 20px 18px; gap: 14px; }
+    .stat .num { font-size: 24px; }
+    .trust-item { padding: 14px 18px; width: 100%; }
+    .intro-card { padding: 22px; }
+    .price-panel { padding: 20px; }
+    .calc-input, .calc-result { padding: 22px; }
+    .cust-stats { gap: 22px; }
+    .cust-card { width: 168px; }
+    .cta-band { padding: 38px 22px; border-radius: 18px; }
+    .cta-band p { font-size: 15.5px; }
+    .save-highlight { padding: 26px; }
+    .save-highlight .big { font-size: 46px; }
+    /* compact tables — shrink to fit, no horizontal scroll */
+    .table-scroll .cmp-table { min-width: 0; }
+    .cmp-table th, .cmp-table td { padding: 10px 9px; font-size: 12px; }
+    .save-highlight .sh-row { font-size: 13px; }
+    .save-highlight .sh-row .old { font-size: 11px; }
+    .tier-table td { padding: 11px 10px; font-size: 13.5px; }
+    .tier-table td:last-child { font-size: 14.5px; }
+    .tier-table th { padding: 0 10px 10px; }
+    .fee-row .fr-price b { font-size: 15px; }
+    footer .f-top { gap: 18px; }
+    footer .f-links { gap: 22px; width: 100%; }
+  }
+
+  /* ---- small phones (≤380, e.g. iPhone SE/mini) ---- */
+  @media (max-width: 380px){
+    .hero h1 { font-size: 27px; }
+    .stat .num { font-size: 22px; }
+    .sec-head h2 { font-size: 23px; }
+    .cust-card { width: 158px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <span class="logo-badge"><img src="assets/logo-gec-etax.png" alt="GEC eTax" /></span>
+      <span class="brand-sub"><small data-en="Electronic Tax Invoice &amp; e-Receipt">ใบกำกับภาษีอิเล็กทรอนิกส์ &amp; ใบรับ</small></span>
+    </div>
+    <nav class="nav-links">
+      <a class="nlink" href="#about" data-en="About">ระบบคืออะไร</a>
+      <a class="nlink" href="#features" data-en="Features">ความสามารถ</a>
+      <a class="nlink" href="#solutions" data-en="Solutions">โซลูชัน</a>
+      <a class="nlink" href="#pricing" data-en="Pricing">ราคา</a>
+      <a class="nlink" href="#customers" data-en="Customers">ลูกค้า</a>
+      <div class="nav-actions">
+        <button type="button" class="lang-toggle" id="langToggle" aria-label="Switch language" title="Switch language">
+          <span class="flag" id="langFlag"></span>
+          <span class="lang-code" id="langCode">TH</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/></svg>
+        </button>
+        <a class="login" href="https://etax.gec.co.th" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>
+          <span data-en="Login">เข้าสู่ระบบ</span>
+        </a>
+        <a class="cta" href="#contact" data-en="Get started">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span data-en="Get started">สนใจใช้งาน</span>
+        </a>
+        <button type="button" class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false"><span></span></button>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a class="mlink" href="#about" data-en="About">ระบบคืออะไร</a>
+  <a class="mlink" href="#features" data-en="Features">ความสามารถ</a>
+  <a class="mlink" href="#solutions" data-en="Solutions">โซลูชัน</a>
+  <a class="mlink" href="#pricing" data-en="Pricing">ราคา</a>
+  <a class="mlink" href="#customers" data-en="Customers">ลูกค้า</a>
+  <a class="mlink m-cta" href="#contact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    <span data-en="Get started">สนใจใช้งาน</span>
+  </a>
+  <a class="mlink m-login" href="https://etax.gec.co.th" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>
+    <span data-en="Login">เข้าสู่ระบบ</span>
+  </a>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="hero" id="about">
+  <div class="wrap hero-inner">
+    <span class="chip"><span class="dot"></span> <span class="tx" data-en="Compliant with Revenue Department standards">รองรับมาตรฐานกรมสรรพากร</span></span>
+    <h1 data-en="Issue <span class='grad'>e-Tax Invoice &amp; e-Receipt</span><br/>Accurate, Secure, All in One Place">ออก <span class="grad">ใบกำกับภาษี &amp; ใบรับ</span> อิเล็กทรอนิกส์<br/>ถูกต้อง ปลอดภัย ครบจบในที่เดียว</h1>
+    <p class="lead" data-en="The eTax system lets your business issue electronic tax documents (e-Tax Invoice &amp; e-Receipt), apply digital signatures, and submit them to the Revenue Department automatically — cutting paperwork, saving time, and staying legally compliant.">
+      ระบบ eTax ช่วยให้ธุรกิจของคุณออกเอกสารภาษีในรูปแบบอิเล็กทรอนิกส์ (e-Tax Invoice &amp; e-Receipt)
+      ลงลายมือชื่อดิจิทัล และนำส่งกรมสรรพากรได้อัตโนมัติ — ลดงานเอกสาร ประหยัดเวลา และมั่นใจว่าถูกต้องตามกฎหมาย
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span data-en="Get started">เริ่มต้นใช้งาน</span>
+      </a>
+      <a class="btn btn-ghost" href="#features">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span data-en="See features">ดูความสามารถ</span>
+      </a>
+    </div>
+    <div class="hero-trust">
+      <span class="tx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Revenue Department compliant">ถูกต้องตามกรมสรรพากร</span></span>
+      <span class="tx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Legally valid digital signature">ลายมือชื่อดิจิทัลมีผลทางกฎหมาย</span></span>
+      <span class="tx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Secure legal archiving">จัดเก็บปลอดภัยตามกฎหมาย</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STATS ============ -->
+<div class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat"><div class="num">100%</div><div class="lbl" data-en="Compliant with RD standards">ถูกต้องตามมาตรฐานสรรพากร</div></div>
+      <div class="stat"><div class="num" data-en="&minus;80%">ลด 80%</div><div class="lbl" data-en="Time &amp; document costs">เวลาและต้นทุนงานเอกสาร</div></div>
+      <div class="stat"><div class="num">24/7</div><div class="lbl" data-en="Issue &amp; submit anytime">ออกและนำส่งเอกสารได้ตลอด</div></div>
+      <div class="stat"><div class="num" data-en="5 yrs">5 ปี</div><div class="lbl" data-en="Legal document retention">จัดเก็บเอกสารตามกฎหมาย</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TRUST ============ -->
+<div class="trust-strip">
+  <div class="wrap">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <div><b data-en="RD Certified Provider">ผู้ให้บริการที่ได้รับรอง</b><span data-en="Certified by the Revenue Department">จากกรมสรรพากร (RD)</span></div>
+      </div>
+      <div class="trust-item">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"/></svg></span>
+        <div><b>ISO/IEC 27001 : 2022</b><span data-en="Information Security Management">ความมั่นคงปลอดภัยสารสนเทศ</span></div>
+      </div>
+      <div class="trust-item">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></span>
+        <div><b data-en="ETDA Certificate">ใบรับรอง ETDA</b><span data-en="Electronic Transactions standard">มาตรฐานธุรกรรมอิเล็กทรอนิกส์</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WHAT IS ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="intro">
+      <div>
+        <div class="kicker" data-en="What is e-Tax Invoice &amp; e-Receipt">e-Tax Invoice &amp; e-Receipt คืออะไร</div>
+        <h2 data-en="Turn paper tax invoices into fully digital documents">เปลี่ยนใบกำกับภาษีกระดาษ ให้เป็นดิจิทัลเต็มรูปแบบ</h2>
+        <p data-en="An electronic tax invoice (e-Tax Invoice) and electronic receipt (e-Receipt) are tax documents created as digital files, signed with an electronic signature, and submitted to the Revenue Department — replacing printed and paper-stored documents.">
+          ใบกำกับภาษีอิเล็กทรอนิกส์ (e-Tax Invoice) และใบรับอิเล็กทรอนิกส์ (e-Receipt)
+          คือเอกสารภาษีที่จัดทำในรูปแบบไฟล์ดิจิทัล ลงลายมือชื่ออิเล็กทรอนิกส์
+          และนำส่งข้อมูลให้กรมสรรพากร แทนการพิมพ์และจัดเก็บกระดาษ
+        </p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Legally equivalent to paper documents">มีผลทางกฎหมายเทียบเท่าเอกสารกระดาษ</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Deliver to customers instantly by email — no postal wait">ส่งให้ลูกค้าทางอีเมลได้ทันที ไม่ต้องรอไปรษณีย์</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Easy to search, verify and archive — never lost">ค้นหา ตรวจสอบ และจัดเก็บได้ง่าย ไม่สูญหาย</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Cut paper, ink and storage costs">ลดต้นทุนกระดาษ หมึก และพื้นที่จัดเก็บ</span></li>
+        </ul>
+      </div>
+      <div class="intro-card">
+        <div class="doc-preview">
+          <div class="dp-head">
+            <b data-en="Tax Invoice / Receipt">ใบกำกับภาษี / ใบรับ</b>
+            <span class="stamp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Signed">ลงลายมือชื่อแล้ว</span></span>
+          </div>
+          <div class="row m"></div>
+          <div class="row"></div>
+          <div class="row s"></div>
+          <div class="row m"></div>
+          <div class="row"></div>
+          <div class="dp-foot">
+            <span class="qr"></span>
+            <div data-en="Submitted to the Revenue Department<br/>Reference no. · Verifiable anytime">นำส่งกรมสรรพากรเรียบร้อย<br/>เลขที่อ้างอิง · ตรวจสอบย้อนหลังได้</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="block" id="features" style="background:#fff;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="System capabilities">ความสามารถของระบบ</div>
+      <h2 data-en="Everything your business needs, in one system">ทุกอย่างที่ธุรกิจคุณต้องการ ในระบบเดียว</h2>
+      <p data-en="From issuing documents and signing, to submitting to the Revenue Department, archiving and reporting.">ตั้งแต่ออกเอกสาร ลงลายมือชื่อ นำส่งสรรพากร ไปจนถึงจัดเก็บและดูรายงาน</p>
+    </div>
+    <div class="cards">
+
+      <div class="card" style="--accent:#283593;--accent-bg:#eef1ff;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div>
+        <h4 data-en="Issue electronic tax documents">ออกเอกสารภาษีอิเล็กทรอนิกส์</h4>
+        <p data-en="Create tax invoices, debit notes, credit notes and receipts — every type, in the standard format required by the Revenue Department.">สร้างใบกำกับภาษี ใบเพิ่มหนี้ ใบลดหนี้ และใบรับ ได้ครบทุกประเภท ในรูปแบบมาตรฐานที่กรมสรรพากรกำหนด</p>
+      </div>
+
+      <div class="card" style="--accent:#1DAA3F;--accent-bg:#e8f7ec;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h4 data-en="Digital signing">ลงลายมือชื่อดิจิทัล</h4>
+        <p data-en="Certify documents with a legally valid electronic signature — assuring authenticity and that the document hasn't been altered.">รับรองเอกสารด้วยลายมือชื่ออิเล็กทรอนิกส์ที่มีผลทางกฎหมาย มั่นใจว่าเอกสารแท้จริงและไม่ถูกแก้ไข</p>
+      </div>
+
+      <div class="card" style="--accent:#47B4E2;--accent-bg:#e8f6fc;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 12l5-5M3 12l5 5M21 7v10"/></svg></div>
+        <h4 data-en="Automatic submission to the Revenue Department">นำส่งกรมสรรพากรอัตโนมัติ</h4>
+        <p data-en="The system submits document data to the Revenue Department automatically on schedule — no manual work required.">ระบบนำส่งข้อมูลเอกสารให้กรมสรรพากรให้โดยอัตโนมัติตามรอบที่กำหนด ไม่ต้องดำเนินการเอง</p>
+      </div>
+
+      <div class="card" style="--accent:#D49236;--accent-bg:#fcf2e2;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <h4 data-en="Instant delivery to customers">ส่งเอกสารถึงลูกค้าทันที</h4>
+        <p data-en="Automatically email tax invoices to partners and customers, complete with files they can open and verify.">ส่งใบกำกับภาษีให้คู่ค้าและลูกค้าทางอีเมลอัตโนมัติ พร้อมไฟล์ที่เปิดและตรวจสอบความถูกต้องได้</p>
+      </div>
+
+      <div class="card" style="--accent:#5c6bc0;--accent-bg:#eef1ff;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
+        <h4 data-en="Secure, legal archiving">จัดเก็บปลอดภัยตามกฎหมาย</h4>
+        <p data-en="Keep electronic documents safely for the legally required retention period — searchable anytime.">เก็บรักษาเอกสารอิเล็กทรอนิกส์อย่างปลอดภัยตามระยะเวลาที่กฎหมายกำหนด ค้นหาย้อนหลังได้ทุกเมื่อ</p>
+      </div>
+
+      <div class="card" style="--accent:#E43927;--accent-bg:#fdecea;">
+        <div class="card-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg></div>
+        <h4 data-en="Reporting &amp; auditing">รายงานและตรวจสอบ</h4>
+        <p data-en="View totals, submission status and business reports in real time — making management and auditing easy.">ดูสรุปยอด สถานะการนำส่ง และรายงานเชิงธุรกิจได้แบบเรียลไทม์ ช่วยให้บริหารและตรวจสอบได้ง่าย</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUPPORTED DOCUMENTS ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Supported documents">เอกสารที่ระบบรองรับ</div>
+      <h2 data-en="Issue every type of tax document">ออกเอกสารภาษีได้ครบทุกประเภท</h2>
+      <p data-en="Covering tax documents specified by the Revenue Code — in the standard electronic format.">ครอบคลุมเอกสารภาษีตามที่ประมวลรัษฎากรกำหนด ในรูปแบบอิเล็กทรอนิกส์มาตรฐาน</p>
+    </div>
+    <div class="docs-grid">
+      <div class="doc-item"><span class="dnum">1</span><div class="dname"><b data-en="Tax Invoice (full)">ใบกำกับภาษี (เต็มรูป)</b><span data-en="Tax Invoice">มาตรา 86/4</span></div></div>
+      <div class="doc-item"><span class="dnum">2</span><div class="dname"><b data-en="Abbreviated Tax Invoice">ใบกำกับภาษี (อย่างย่อ)</b><span data-en="Section 86/6">มาตรา 86/6</span></div></div>
+      <div class="doc-item"><span class="dnum">3</span><div class="dname"><b data-en="Debit Note">ใบเพิ่มหนี้</b><span data-en="Debit Note">มาตรา 86/9</span></div></div>
+      <div class="doc-item"><span class="dnum">4</span><div class="dname"><b data-en="Credit Note">ใบลดหนี้</b><span data-en="Credit Note">มาตรา 86/10</span></div></div>
+      <div class="doc-item"><span class="dnum">5</span><div class="dname"><b data-en="Receipt">ใบรับ (ใบเสร็จรับเงิน)</b><span data-en="Section 105 bis">มาตรา 105 ทวิ</span></div></div>
+      <div class="doc-item"><span class="dnum">6</span><div class="dname"><b data-en="Invoice / Tax Invoice">ใบแจ้งหนี้ / ใบกำกับภาษี</b><span data-en="Invoice">Invoice</span></div></div>
+      <div class="doc-item"><span class="dnum">7</span><div class="dname"><b data-en="Receipt / Tax Invoice">ใบเสร็จรับเงิน / ใบกำกับภาษี</b><span data-en="Receipt">Receipt</span></div></div>
+      <div class="doc-item"><span class="dnum">8</span><div class="dname"><b data-en="Delivery Order / Tax Invoice">ใบส่งของ / ใบกำกับภาษี</b><span data-en="Delivery Order">Delivery Order</span></div></div>
+    </div>
+    <p style="text-align:center;margin-top:22px;font-size:13.5px;color:var(--slate-400);" data-en="Output as PDF, PDF/A-3, XML and other electronic formats, signed with a digital signature">ไฟล์เอาต์พุตรองรับ PDF, PDF/A-3, XML และอื่นๆ พร้อมลงลายมือชื่อดิจิทัล (Digital Signature)</p>
+  </div>
+</section>
+
+<!-- ============ JOURNEY ============ -->
+<section class="block journey" id="journey">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="How it works">ขั้นตอนการใช้งาน</div>
+      <h2 data-en="Get started in just a few steps">เริ่มต้นง่าย เพียงไม่กี่ขั้นตอน</h2>
+      <p data-en="From issuing documents to submitting them — the system handles it end to end.">ตั้งแต่ออกเอกสารจนนำส่งสรรพากร ระบบดูแลให้คุณแบบครบวงจร</p>
+    </div>
+    <div class="steps-grid">
+      <div class="jstep"><div class="jn"></div><h5 data-en="Create document">สร้างเอกสาร</h5><p data-en="Enter data or import from your existing system to issue a tax invoice/receipt.">กรอกข้อมูลหรือนำเข้าจากระบบเดิม เพื่อออกใบกำกับภาษี/ใบรับ</p></div>
+      <div class="jstep"><div class="jn"></div><h5 data-en="Sign">ลงลายมือชื่อ</h5><p data-en="The system applies the digital signature automatically, certifying accuracy.">ระบบลงลายมือชื่อดิจิทัลให้อัตโนมัติ รับรองความถูกต้อง</p></div>
+      <div class="jstep"><div class="jn"></div><h5 data-en="Send to customer">ส่งให้ลูกค้า</h5><p data-en="Deliver documents to partners by email instantly.">จัดส่งเอกสารถึงคู่ค้าทางอีเมลทันที</p></div>
+      <div class="jstep"><div class="jn"></div><h5 data-en="Submit to RD">นำส่งสรรพากร</h5><p data-en="The system submits data to the Revenue Department automatically on schedule.">ระบบนำส่งข้อมูลให้กรมสรรพากรตามรอบโดยอัตโนมัติ</p></div>
+      <div class="jstep"><div class="jn"></div><h5 data-en="Archive &amp; report">จัดเก็บ &amp; ดูรายงาน</h5><p data-en="Documents are stored securely — searchable and reportable anytime.">เอกสารถูกเก็บอย่างปลอดภัย ค้นหาและดูรายงานได้ทุกเมื่อ</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BENEFITS ============ -->
+<section class="block benefits" id="benefits">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Why choose eTax">ทำไมต้องเลือก eTax</div>
+      <h2 data-en="Benefits for your business">ประโยชน์ที่ธุรกิจของคุณจะได้รับ</h2>
+    </div>
+    <div class="ben-grid">
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h5 data-en="Save time and cost">ประหยัดเวลาและต้นทุน</h5><p data-en="Reduce paperwork, printing and delivery — done in just a few clicks.">ลดงานเอกสาร การพิมพ์ และการจัดส่ง — ทำงานเสร็จในไม่กี่คลิก</p></div></div>
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h5 data-en="Legally compliant">ถูกต้องตามกฎหมาย</h5><p data-en="Fully compliant with the standards and requirements of the Revenue Department.">เป็นไปตามมาตรฐานและข้อกำหนดของกรมสรรพากรอย่างครบถ้วน</p></div></div>
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><h5 data-en="Secure and trustworthy">ปลอดภัยและน่าเชื่อถือ</h5><p data-en="Documents are certified and stored securely, preventing forgery and loss.">เอกสารถูกรับรองและจัดเก็บอย่างปลอดภัย ป้องกันการปลอมแปลงและสูญหาย</p></div></div>
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg></span><div><h5 data-en="Run your business better">บริหารธุรกิจได้ดีขึ้น</h5><p data-en="See data and reports in real time to make faster, more accurate decisions.">เห็นข้อมูลและรายงานแบบเรียลไทม์ ช่วยตัดสินใจได้รวดเร็วและแม่นยำ</p></div></div>
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><div><h5 data-en="Serve customers better">ดูแลลูกค้าได้ดีขึ้น</h5><p data-en="Deliver documents to customers instantly — projecting professionalism and care.">ส่งเอกสารถึงลูกค้าได้ทันที สร้างความประทับใจและความเป็นมืออาชีพ</p></div></div>
+      <div class="ben"><span class="b-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><div><h5 data-en="Built to scale">รองรับการเติบโต</h5><p data-en="Issue unlimited documents — supporting businesses from small to enterprise.">ออกเอกสารได้ไม่จำกัดปริมาณ รองรับธุรกิจตั้งแต่ขนาดเล็กจนถึงองค์กรขนาดใหญ่</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOLUTIONS ============ -->
+<section class="block" id="solutions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Solution packages">โซลูชันที่เหมาะกับธุรกิจ</div>
+      <h2 data-en="Choose the solution that fits your business">เลือกโซลูชันที่เหมาะกับรูปแบบธุรกิจของคุณ</h2>
+      <p data-en="Three ready-to-use options — from web upload to full ERP integration and point-of-sale.">3 รูปแบบพร้อมใช้งาน ตั้งแต่อัปโหลดผ่านเว็บ ไปจนถึงเชื่อมต่อ ERP และระบบหน้าร้าน</p>
+    </div>
+    <div class="sol-grid">
+
+      <div class="sol">
+        <div class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5-5 5 5M12 5v12"/></svg></div>
+        <div class="s-name">Standard SMEs</div>
+        <h4 data-en="E-Tax | Basic">E-Tax | Basic</h4>
+        <p data-en="For businesses without an ERP or that don't need any integration. Upload .TXT, CSV or Excel files to create and file e-Tax Invoice &amp; e-Receipt easily — fully standard-compliant with no extra system investment.">เหมาะสำหรับธุรกิจที่ไม่มีระบบ ERP หรือไม่ต้องการเชื่อมต่อระบบใด ๆ อัปโหลดไฟล์ .TXT, CSV หรือ Excel เพื่อสร้างและยื่น e-Tax Invoice และ e-Receipt ได้สะดวก เป็นไปตามมาตรฐานสรรพากร โดยไม่ต้องลงทุนระบบเพิ่ม</p>
+        <ul class="s-for">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Small to medium businesses">ธุรกิจขนาดเล็กถึงกลาง</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="No system integration needed">ไม่เน้นการเชื่อมต่อระหว่างระบบ</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Go-live in 1 week">ระยะเวลาขึ้นระบบ 1 สัปดาห์</span></li>
+        </ul>
+        <span class="s-go" data-en="Web Upload">Web Upload</span>
+      </div>
+
+      <div class="sol feat">
+        <span class="ribbon" data-en="Most popular">ได้รับความนิยมสูงสุด</span>
+        <div class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 7h7v7M21 7l-9 9-4-4-6 6"/></svg></div>
+        <div class="s-name">Enterprise with ERP</div>
+        <h4 data-en="ERP Plug-and-Go">ERP Plug-and-Go</h4>
+        <p data-en="For organizations already using an ERP or accounting software. Ships with ready-made connectors and APIs to integrate directly with your ERP — automated, fewer steps, more accuracy, and built to scale.">เหมาะสำหรับองค์กรที่ใช้ระบบ ERP หรือซอฟต์แวร์บัญชีอยู่แล้ว มาพร้อมตัวเชื่อมต่อ (Connector) และ API พร้อมใช้งาน เชื่อมต่อ ERP ได้โดยตรงอัตโนมัติ ลดขั้นตอน เพิ่มความแม่นยำ และรองรับการขยายตัวระยะยาว</p>
+        <ul class="s-for">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Medium to large organizations">องค์กรขนาดกลางถึงใหญ่</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="High document volume, existing ERP">เอกสารปริมาณสูง ใช้ ERP อยู่แล้ว</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Go-live in 30 days">ระยะเวลาขึ้นระบบ 30 วัน</span></li>
+        </ul>
+        <span class="s-go" data-en="Automated · Connector / API">Automated · Connector / API</span>
+      </div>
+
+      <div class="sol">
+        <div class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M6 14h6"/></svg></div>
+        <div class="s-name">B2C Company</div>
+        <h4 data-en="Frontline Auto Invoicing">Frontline Auto Invoicing</h4>
+        <p data-en="Empower frontline staff — cashiers and branch teams — to issue e-Tax invoices instantly at the point of sale. Integrates with POS or transaction systems automatically, removing hassle for both staff and customers.">เสริมศักยภาพพนักงานหน้าร้าน เช่น แคชเชียร์และพนักงานสาขา ออกใบกำกับภาษี e-Tax ได้ทันทีที่จุดขาย เชื่อมต่อ POS หรือระบบธุรกรรมอัตโนมัติ ลดความยุ่งยากทั้งพนักงานและลูกค้า</p>
+        <ul class="s-for">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Retail, restaurants &amp; cafés">ร้านค้าปลีก ร้านอาหาร และคาเฟ่</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Storefront services or Marketplace">ธุรกิจบริการที่มีหน้าร้าน หรือ Marketplace</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span data-en="Go-live in 30 days">ระยะเวลาขึ้นระบบ 30 วัน</span></li>
+        </ul>
+        <span class="s-go" data-en="POS Integration">POS Integration</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="block pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Pricing">ค่าบริการ</div>
+      <h2 data-en="Transparent pricing — pay per use">ราคาชัดเจน จ่ายตามการใช้งานจริง</h2>
+      <p data-en="A one-time setup fee plus a monthly per-document rate that gets cheaper as volume grows.">ค่าติดตั้งครั้งเดียว และค่าบริการรายเดือนตามจำนวนเอกสารจริง — ยิ่งใช้มาก ราคาต่อใบยิ่งถูก</p>
+    </div>
+
+    <div class="price-cols">
+      <!-- Setup + yearly -->
+      <div>
+        <div class="price-panel" style="margin-bottom:22px;">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h2M12 4v16M5 8h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2z"/></svg> <span data-en="One-time Setup Fee">ค่าติดตั้งครั้งเดียว</span></h4>
+          <p class="ph-sub" data-en="One-Time Setup Fee">One-Time Setup Fee</p>
+          <div class="fee-row"><div class="fr-name"><b data-en="Register บอ.01 + RD documents">ขึ้นทะเบียน บอ.01 + เอกสารสรรพากร</b><span data-en="One-time service">ค่าบริการครั้งเดียว</span></div><div class="fr-price"><b>3,000 ฿</b></div></div>
+          <div class="fee-row"><div class="fr-name"><b data-en="Customize Report PDF / A3">ปรับแต่ง Report PDF / A3</b><span class="free-tag" data-en="Free with GEC standard">ฟรี หากใช้มาตรฐาน GEC</span></div><div class="fr-price"><b>5,000 ฿</b><span data-en="/ Template">/ Template</span></div></div>
+          <div class="fee-row"><div class="fr-name"><b data-en="Mapping File (Excel, CSV, Text)">Mapping File (Excel, CSV, Text)</b><span class="free-tag" data-en="Free with GEC standard">ฟรี หากใช้มาตรฐาน GEC</span></div><div class="fr-price"><b>10,000 ฿</b><span data-en="/ Format">/ Format</span></div></div>
+          <div class="fee-row"><div class="fr-name"><b data-en="API / FTP Integration">เชื่อมต่อระบบ API / FTP</b></div><div class="fr-price"><b>15,000 ฿</b><span data-en="/ Man-Day">/ Man-Day</span></div></div>
+        </div>
+        <div class="price-panel">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg> <span data-en="Yearly Service Fee">ค่าบริการรายปี</span></h4>
+          <p class="ph-sub" data-en="Yearly Service Fee">Yearly Service Fee</p>
+          <div class="fee-row"><div class="fr-name"><b data-en="Digital Certificate">ใบรับรองอิเล็กทรอนิกส์ (Digital Certificate)</b><span class="free-tag" data-en="Free with GEC standard">ฟรี หากใช้มาตรฐาน GEC</span></div><div class="fr-price"><b>3,000 ฿</b><span data-en="/ year">/ ปี</span></div></div>
+        </div>
+      </div>
+
+      <!-- Monthly tier table -->
+      <div class="price-panel">
+        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg> <span data-en="Monthly Usage Fee">ค่าบริการรายเดือน</span></h4>
+        <p class="ph-sub" data-en="Charged per actual Doc.No · Cloud Storage 20 GB included (or 5 years, whichever comes first)">เรียกเก็บตามจำนวนจริง (per Doc.No) · Cloud Storage 20 GB รวมในราคา (หรือ 5 ปี แล้วแต่ถึงก่อน)</p>
+        <table class="tier-table">
+          <thead><tr><th data-en="Documents / month">จำนวนเอกสาร / เดือน</th><th data-en="Price / doc">ราคาต่อใบ</th></tr></thead>
+          <tbody>
+            <tr><td data-en="0 – 100 docs">0 – 100 ใบ</td><td>3.00 ฿ <span style="font-weight:400;color:var(--slate-400);font-size:12px;" data-en="(min 300฿)">(ขั้นต่ำ 300฿)</span></td></tr>
+            <tr><td data-en="101 – 500 docs">101 – 500 ใบ</td><td>3.00 ฿</td></tr>
+            <tr><td data-en="501 – 2,000 docs">501 – 2,000 ใบ</td><td>2.50 ฿</td></tr>
+            <tr><td data-en="2,001 – 5,000 docs">2,001 – 5,000 ใบ</td><td>2.00 ฿</td></tr>
+            <tr><td data-en="5,001 – 10,000 docs">5,001 – 10,000 ใบ</td><td>1.50 ฿</td></tr>
+            <tr class="best"><td data-en="10,001 – 50,000 docs">10,001 – 50,000 ใบ <span class="best-badge">BEST VALUE</span></td><td>1.00 ฿</td></tr>
+            <tr><td data-en="50,001+ docs">50,001 ++ ใบ</td><td style="font-size:13px;" data-en="Special Quotation">Special Quotation</td></tr>
+          </tbody>
+        </table>
+        <div class="tier-note" data-en="* Prices exclude 7% VAT · Rates step down automatically with volume · The more you use, the lower the per-document price">* ราคาไม่รวม VAT 7% · ราคาปรับลดตามปริมาณอัตโนมัติ · ยิ่งใช้มาก ราคาต่อใบยิ่งถูก</div>
+      </div>
+    </div>
+
+    <!-- Price calculator -->
+    <div class="calc">
+      <div class="calc-head">
+        <span class="calc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h.01M16 10h.01M8 14h2M12 14h.01M16 14h.01M8 18h8"/></svg></span>
+        <div>
+          <h3 data-en="Price calculator">คำนวณราคา</h3>
+          <p data-en="Enter your monthly document volume to estimate your cost instantly">กรอกจำนวนเอกสารต่อเดือน เพื่อประเมินค่าบริการได้ทันที</p>
+        </div>
+      </div>
+      <div class="calc-body">
+        <div class="calc-input">
+          <label for="calcQty" data-en="Documents per month">จำนวนเอกสาร / เดือน</label>
+          <div class="calc-field">
+            <input type="number" id="calcQty" min="0" max="50000" step="1" value="500" inputmode="numeric" />
+            <span class="unit" data-en="docs">ใบ</span>
+          </div>
+          <input type="range" id="calcRange" min="0" max="50000" step="50" value="500" aria-label="documents" />
+          <div class="calc-presets">
+            <button type="button" data-q="100">100</button>
+            <button type="button" data-q="500">500</button>
+            <button type="button" data-q="2000">2,000</button>
+            <button type="button" data-q="5000">5,000</button>
+            <button type="button" data-q="10000">10,000</button>
+            <button type="button" data-q="50000">50,000</button>
+          </div>
+        </div>
+        <div class="calc-result">
+          <div id="calcBreakdown">
+            <div class="cr-tier"><span data-en="Rate per document">ราคาต่อใบ</span><b id="crRate">2.50 ฿</b></div>
+            <div class="cr-line"><span data-en="Monthly fee (excl. VAT)">ค่าบริการ/เดือน (ก่อน VAT)</span><b id="crSub">1,250 ฿</b></div>
+            <div class="cr-line"><span data-en="VAT 7%">VAT 7%</span><b id="crVat">87.50 ฿</b></div>
+            <div class="cr-total"><span data-en="Total / month">รวมต่อเดือน</span><b id="crTotal">1,337.50 ฿</b></div>
+            <p class="cr-note" id="crNote"></p>
+          </div>
+          <div class="calc-special" id="calcSpecial">
+            <h4 data-en="Enterprise Tier">ปริมาณระดับองค์กร</h4>
+            <p data-en="Over 50,000 documents/month qualifies for a special quotation with the best rate.">มากกว่า 50,000 ใบ/เดือน รับราคาพิเศษ (Special Quotation) ในอัตราที่ดีที่สุด</p>
+            <a href="#contact" data-en="Request a quote">ขอใบเสนอราคา</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ SAVINGS / COMPARISON ============ -->
+<section class="block savings">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Cost comparison">เปรียบเทียบค่าใช้จ่าย</div>
+      <h2 data-en="Cut document costs by up to 87%">ลดต้นทุนเอกสารได้สูงสุด 87%</h2>
+      <p data-en="Example based on 500 documents per month — paper vs. e-Tax Invoice.">ตัวอย่างจาก 500 ใบต่อเดือน — กระดาษ เทียบกับ e-Tax Invoice</p>
+    </div>
+    <div class="save-wrap">
+      <div class="table-scroll">
+      <table class="cmp-table">
+        <thead><tr><th data-en="Item">รายการ</th><th class="col-paper" data-en="Paper">ใบกำกับภาษีกระดาษ</th><th class="col-etax" data-en="E-Tax Invoice">E-Tax Invoice</th></tr></thead>
+        <tbody>
+          <tr><td data-en="Document cost (paper / ink)">ค่าเอกสาร (กระดาษ / หมึกพิมพ์)</td><td class="col-paper" data-en="3.5 ฿/doc">3.5 ฿/ใบ</td><td class="col-etax">3 ฿</td></tr>
+          <tr><td data-en="Delivery (registered mail / envelope)">ค่าจัดส่ง (ลงทะเบียน / ซองจดหมาย)</td><td class="col-paper" data-en="20 ฿/doc">20 ฿/ใบ</td><td class="col-etax">n/a</td></tr>
+          <tr><td data-en="Storage">ค่าจัดเก็บ</td><td class="col-paper" data-en="50 ฿ / 5 yrs">50 ฿ / 5 ปี</td><td class="col-etax">n/a</td></tr>
+          <tr><td data-en="Working hours">ชั่วโมงการทำงาน</td><td class="col-paper" data-en="60 hrs/mo">60 ชม./เดือน</td><td class="col-etax" data-en="25 hrs/mo">25 ชม./เดือน</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="save-highlight">
+        <div class="big">−87%</div>
+        <div class="big-lbl" data-en="Lower operating cost per month">ค่าดำเนินการต่อเดือนลดลง</div>
+        <div class="sh-row"><span data-en="Monthly cost">ค่าดำเนินการ/เดือน</span><b><span class="old">11,750 ฿</span> 1,500 ฿</b></div>
+        <div class="sh-row"><span data-en="Working hours">ชั่วโมงทำงาน/เดือน</span><b><span class="old">60 ชม.</span> 25 ชม. <span style="font-weight:400;color:#41557a;font-size:12px;">(−60%)</span></b></div>
+      </div>
+    </div>
+
+    <!-- GEC vs competitors -->
+    <div class="sec-head" style="margin-top:64px;margin-bottom:28px;">
+      <div class="kicker" data-en="GEC vs. typical providers">เทียบกับผู้ให้บริการทั่วไป</div>
+      <h2 data-en="Why GEC eTax is the better value">ทำไม GEC eTax คุ้มค่ากว่า</h2>
+    </div>
+    <div class="table-scroll">
+    <table class="cmp-table">
+      <thead><tr><th data-en="Feature">คุณสมบัติ</th><th class="gec-col" data-en="GEC eTax">GEC eTax</th><th data-en="Typical providers">ผู้ให้บริการทั่วไป</th></tr></thead>
+      <tbody>
+        <tr><td data-en="High-volume price (/doc)">ราคา Volume สูง (/ใบ)</td><td class="gec-col">1.00 ฿</td><td data-en="~1.50–2.00 ฿">~1.50–2.00 ฿</td></tr>
+        <tr><td data-en="Cloud Storage included">Cloud Storage รวมในราคา</td><td class="gec-col">20 GB</td><td data-en="5–10 GB or charged extra">5–10 GB หรือคิดเพิ่ม</td></tr>
+        <tr><td data-en="Digital Certificate / year">Digital Certificate / ปี</td><td class="gec-col">3,000 ฿</td><td data-en="3,000–5,000 ฿">3,000–5,000 ฿</td></tr>
+        <tr><td data-en="API / FTP Integration">API / FTP Integration</td><td class="gec-col"><span class="ck">✓</span> <span data-en="(Man-Day)">(Man-Day)</span></td><td data-en="Some providers">บางราย</td></tr>
+        <tr><td data-en="24×7 Helpdesk Support">Helpdesk Support 24×7</td><td class="gec-col"><span class="ck">✓</span> <span data-en="Phone + LINE">โทร + LINE</span></td><td data-en="Business hours">เวลาทำการ</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CUSTOMERS ============ -->
+<section class="block customers" id="customers">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-en="Trusted by">ลูกค้าที่ไว้วางใจ</div>
+      <h2 data-en="Trusted by leading businesses">องค์กรชั้นนำเลือกใช้ GEC eTax</h2>
+      <p data-en="From retail and hospitality to food, technology and manufacturing — businesses of every kind rely on us.">ตั้งแต่ค้าปลีก โรงแรม อาหาร เทคโนโลยี ไปจนถึงอุตสาหกรรม — หลากหลายธุรกิจไว้วางใจให้เราดูแล</p>
+    </div>
+    <div class="cust-stats">
+      <div class="cs"><b>11+</b><span data-en="Leading organizations">องค์กรชั้นนำ</span></div>
+      <div class="cs"><b data-en="Diverse">หลากหลาย</b><span data-en="Industries served">กลุ่มอุตสาหกรรม</span></div>
+      <div class="cs"><b>100%</b><span data-en="RD compliant">ถูกต้องตามสรรพากร</span></div>
+    </div>
+    <div class="cust-marquee">
+      <div class="cust-track">
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/chunbok.png" alt="บริษัท ชุน บ็อก จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ชุน บ็อก จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/dhas.png" alt="บริษัท ดี.เอช.เอ.สยามวาลา จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ดี.เอช.เอ.สยามวาลา จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/aokhai.png" alt="บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/grandpa.png" alt="บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/justmodern.png" alt="บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/ulite.png" alt="บริษัท ยูไลท์ ดิจิตอล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ยูไลท์ ดิจิตอล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/gec.png" alt="บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/tempered.png" alt="บริษัท เทมเปอร์ด แล็บ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เทมเปอร์ด แล็บ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/mcthai.png" alt="บริษัท แมคไทย จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท แมคไทย จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/koikeya.png" alt="บริษัท โคอิเคยะ (ประเทศไทย) จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โคอิเคยะ (ประเทศไทย) จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/solen.png" alt="บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/chunbok.png" alt="บริษัท ชุน บ็อก จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ชุน บ็อก จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/dhas.png" alt="บริษัท ดี.เอช.เอ.สยามวาลา จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ดี.เอช.เอ.สยามวาลา จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/aokhai.png" alt="บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/grandpa.png" alt="บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/justmodern.png" alt="บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/ulite.png" alt="บริษัท ยูไลท์ ดิจิตอล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ยูไลท์ ดิจิตอล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/gec.png" alt="บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/tempered.png" alt="บริษัท เทมเปอร์ด แล็บ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เทมเปอร์ด แล็บ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/mcthai.png" alt="บริษัท แมคไทย จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท แมคไทย จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/koikeya.png" alt="บริษัท โคอิเคยะ (ประเทศไทย) จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โคอิเคยะ (ประเทศไทย) จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/solen.png" alt="บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด</div></div>
+      </div>
+    </div>
+    <div class="cust-marquee">
+      <div class="cust-track rev">
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/solen.png" alt="บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/koikeya.png" alt="บริษัท โคอิเคยะ (ประเทศไทย) จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โคอิเคยะ (ประเทศไทย) จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/mcthai.png" alt="บริษัท แมคไทย จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท แมคไทย จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/tempered.png" alt="บริษัท เทมเปอร์ด แล็บ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เทมเปอร์ด แล็บ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/gec.png" alt="บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/ulite.png" alt="บริษัท ยูไลท์ ดิจิตอล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ยูไลท์ ดิจิตอล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/justmodern.png" alt="บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/grandpa.png" alt="บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/aokhai.png" alt="บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/dhas.png" alt="บริษัท ดี.เอช.เอ.สยามวาลา จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ดี.เอช.เอ.สยามวาลา จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/chunbok.png" alt="บริษัท ชุน บ็อก จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ชุน บ็อก จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/solen.png" alt="บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โซลเอ็น คอร์ปอเรชั่น จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/koikeya.png" alt="บริษัท โคอิเคยะ (ประเทศไทย) จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท โคอิเคยะ (ประเทศไทย) จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/mcthai.png" alt="บริษัท แมคไทย จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท แมคไทย จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/tempered.png" alt="บริษัท เทมเปอร์ด แล็บ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เทมเปอร์ด แล็บ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/gec.png" alt="บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/ulite.png" alt="บริษัท ยูไลท์ ดิจิตอล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ยูไลท์ ดิจิตอล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/justmodern.png" alt="บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท พี.ซี.แอล.อินเตอร์เนชั่นแนล จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/grandpa.png" alt="บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอุบล กอล์ฟ แอนด์ รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/aokhai.png" alt="บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท บ้านสวนอ่าวไข่ บีช รีสอร์ท จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/dhas.png" alt="บริษัท ดี.เอช.เอ.สยามวาลา จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ดี.เอช.เอ.สยามวาลา จำกัด</div></div>
+        <div class="cust-card"><div class="logo-wrap"><img src="assets/customers/chunbok.png" alt="บริษัท ชุน บ็อก จำกัด" loading="lazy"/></div><div class="cust-name">บริษัท ชุน บ็อก จำกัด</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="block" id="contact" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2 data-en="Ready to go digital with your tax documents?">พร้อมเปลี่ยนสู่เอกสารภาษีดิจิทัลแล้วหรือยัง?</h2>
+      <p data-en="Let the GEC team guide a smooth transition to the e-Tax Invoice &amp; e-Receipt system.">ให้ทีมงาน GEC ช่วยดูแลการเปลี่ยนผ่านสู่ระบบ e-Tax Invoice &amp; e-Receipt อย่างราบรื่น</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+        <a class="btn btn-primary" href="tel:021764190">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>02-764-1900</span>
+        </a>
+        <a class="btn btn-ghost" href="mailto:cs@gec.co.th">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+          <span>cs@gec.co.th</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div class="brand" style="display:flex;align-items:center;gap:12px;">
+        <span class="logo-badge" style="height:46px;padding:0 14px;border-radius:12px;background:#fff;display:grid;place-items:center;"><img src="assets/logo-gec-etax.png" alt="GEC eTax" style="height:30px;width:auto;display:block;"/></span>
+        <span><small style="display:block;font-size:11.5px;letter-spacing:1.5px;" data-en="Electronic Tax Invoice &amp; e-Receipt">ใบกำกับภาษีอิเล็กทรอนิกส์ &amp; ใบรับ</small></span>
+      </div>
+      <div class="f-links">
+        <div class="f-col"><h6 data-en="About the system">เกี่ยวกับระบบ</h6><a href="#about" data-en="About">ระบบคืออะไร</a><a href="#features" data-en="Features">ความสามารถ</a><a href="#solutions" data-en="Solutions">โซลูชัน</a><a href="#pricing" data-en="Pricing">ราคา</a></div>
+        <div class="f-col"><h6 data-en="Contact">ติดต่อเรา</h6>
+          <span data-en="General Electronic Commerce Services Co., Ltd.">บริษัท เจเนอรัล อิเลคทรอนิค คอมเมอร์ซ เซอร์วิสเซศ จำกัด</span>
+          <span data-en="989 Room B2, Siam Piwat Tower 16th Fl., Rama 1 Rd., Pathumwan, Bangkok 10330">เลขที่ 989 ห้องบี 2 อาคารสยามพิวรรธน์ทาวเวอร์ ชั้น 16 ถนนพระราม 1 แขวงปทุมวัน เขตปทุมวัน กรุงเทพฯ 10330</span>
+        </div>
+        <div class="f-col"><h6 data-en="Customer service">ฝ่ายบริการลูกค้า</h6>
+          <a href="tel:021764190">โทร. 02-764-1900 <span data-en="press 1">กด 1</span></a>
+          <a href="tel:0814446498">มือถือ 081-444-6498</a>
+          <a href="mailto:cs@gec.co.th">cs@gec.co.th</a>
+        </div>
+      </div>
+    </div>
+    <div class="f-bottom" data-en="© 2026 Global E-Business Connect (GEC) · RD-certified e-Tax Invoice &amp; e-Receipt service provider · Prices exclude 7% VAT">© 2026 General Electronic Commerce Services (GEC) · ผู้ให้บริการ e-Tax ที่ได้รับรองจากกรมสรรพากร · ราคายังไม่รวม VAT 7%</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('[data-en]');
+  // cache Thai (default) markup once
+  els.forEach(function(el){ el.dataset.th = el.innerHTML; });
+
+  var toggle  = document.getElementById('langToggle');
+  var flagEl  = document.getElementById('langFlag');
+  var codeEl  = document.getElementById('langCode');
+
+  // compact inline flags
+  var FLAGS = {
+    th: '<svg viewBox="0 0 60 30" preserveAspectRatio="none"><rect width="60" height="30" fill="#A51931"/><rect y="5" width="60" height="20" fill="#fff"/><rect y="10" width="60" height="10" fill="#2D2A4A"/></svg>',
+    en: '<svg viewBox="0 0 60 30" preserveAspectRatio="none"><clipPath id="ukc"><rect width="60" height="30"/></clipPath><g clip-path="url(#ukc)"><rect width="60" height="30" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4"/><rect x="25" width="10" height="30" fill="#fff"/><rect y="10" width="60" height="10" fill="#fff"/><rect x="27" width="6" height="30" fill="#C8102E"/><rect y="12" width="60" height="6" fill="#C8102E"/></g></svg>'
+  };
+
+  function setLang(lang){
+    document.documentElement.lang = lang;
+    els.forEach(function(el){
+      el.innerHTML = (lang === 'en') ? el.getAttribute('data-en') : el.dataset.th;
+    });
+    // the toggle shows the CURRENT language (flag + code)
+    flagEl.innerHTML = FLAGS[lang];
+    codeEl.textContent = (lang === 'en') ? 'EN' : 'TH';
+    try { localStorage.setItem('etax_lang', lang); } catch(e){}
+  }
+
+  toggle.addEventListener('click', function(){
+    setLang(document.documentElement.lang === 'en' ? 'th' : 'en');
+  });
+
+  var saved = 'th';
+  try { saved = localStorage.getItem('etax_lang') || 'th'; } catch(e){}
+  var qp = new URLSearchParams(location.search).get('lang');
+  if (qp === 'en' || qp === 'th') saved = qp;
+  setLang(saved);
+})();
+
+// ===== Price calculator =====
+(function(){
+  var qty   = document.getElementById('calcQty');
+  var range = document.getElementById('calcRange');
+  var rateEl  = document.getElementById('crRate');
+  var subEl   = document.getElementById('crSub');
+  var vatEl   = document.getElementById('crVat');
+  var totalEl = document.getElementById('crTotal');
+  var noteEl  = document.getElementById('crNote');
+  var breakdown = document.getElementById('calcBreakdown');
+  var special   = document.getElementById('calcSpecial');
+  if (!qty) return;
+  var MAX = 50000;
+
+  function money(n){ return n.toLocaleString('en-US',{ maximumFractionDigits:2 }) + ' ฿'; }
+  // flat per-document rate based on the tier the monthly volume falls into
+  function rateFor(n){
+    if (n <= 500)   return 3.00;
+    if (n <= 2000)  return 2.50;
+    if (n <= 5000)  return 2.00;
+    if (n <= 10000) return 1.50;
+    if (n <= 50000) return 1.00;
+    return null; // > 50,000 → special quotation
+  }
+
+  function calc(){
+    var n = parseInt(qty.value, 10);
+    if (isNaN(n) || n < 0) n = 0;
+    if (n > MAX){ n = MAX; qty.value = MAX; }
+    var en = document.documentElement.lang === 'en';
+    var rate = rateFor(n);
+
+    if (rate === null){
+      breakdown.style.display = 'none';
+      special.style.display = 'block';
+      return;
+    }
+    breakdown.style.display = 'block';
+    special.style.display = 'none';
+
+    var sub = n * rate;
+    var minApplied = false;
+    if (n > 0 && sub < 300){ sub = 300; minApplied = true; }
+    var vat = sub * 0.07;
+    var total = sub + vat;
+
+    rateEl.textContent  = rate.toFixed(2) + ' ฿';
+    subEl.textContent   = money(sub);
+    vatEl.textContent   = money(vat);
+    totalEl.textContent = money(total);
+
+    if (n === 0){
+      noteEl.textContent = en ? 'Enter a document volume to estimate your monthly fee.'
+                              : 'กรอกจำนวนเอกสารเพื่อประเมินค่าบริการต่อเดือน';
+    } else if (minApplied){
+      noteEl.textContent = en ? '* Minimum charge of 300 ฿/month applies.'
+                              : '* คิดค่าบริการขั้นต่ำ 300 ฿/เดือน';
+    } else {
+      noteEl.textContent = en ? '≈ ' + money(total) + ' per month including VAT.'
+                              : '≈ ' + money(total) + ' ต่อเดือน รวม VAT แล้ว';
+    }
+  }
+
+  function setQty(v, fromRange){
+    v = Math.min(MAX, Math.max(0, parseInt(v,10) || 0));
+    qty.value = v;
+    range.value = Math.min(v, parseInt(range.max,10));
+    calc();
+  }
+
+  qty.addEventListener('input', function(){
+    var v = Math.min(MAX, Math.max(0, parseInt(qty.value,10) || 0));
+    range.value = Math.min(v, parseInt(range.max,10));
+    calc();
+  });
+  range.addEventListener('input', function(){ setQty(range.value, true); });
+  document.querySelectorAll('.calc-presets button').forEach(function(b){
+    b.addEventListener('click', function(){ setQty(b.dataset.q, false); });
+  });
+  // re-render notes/labels when language changes
+  var lt = document.getElementById('langToggle');
+  if (lt) lt.addEventListener('click', function(){ setTimeout(calc, 0); });
+
+  calc();
+})();
+
+// ===== Nav: scroll-aware + mobile menu =====
+(function(){
+  var nav = document.querySelector('header.nav');
+  var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 12); };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive:true });
+
+  var burger = document.getElementById('navBurger');
+  var menu = document.getElementById('mobileMenu');
+  if (burger && menu){
+    var setOpen = function(open){
+      burger.classList.toggle('open', open);
+      menu.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    burger.addEventListener('click', function(){ setOpen(!menu.classList.contains('open')); });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){ setOpen(false); });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
